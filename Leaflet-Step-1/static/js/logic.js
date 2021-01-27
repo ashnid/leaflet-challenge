@@ -6,7 +6,6 @@ function markerSize(mag) {
     return mag * 20000;
 }
 
-
 function markerColor(mag) {
     if (mag < 1) {
         return "#ccff33"
