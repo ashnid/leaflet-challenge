@@ -3,7 +3,7 @@ var API_KEY = "pk.eyJ1Ijoic3RyaXZlZGkiLCJhIjoiY2todmNocDRnMTI2NDJ0b2NobzM4NDdydi
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
 
 function markerSize(mag) {
-    return mag * 20000;
+    return mag * 30000;
 }
 
 function markerColor(mag) {
@@ -25,16 +25,13 @@ function markerColor(mag) {
 d3.json(queryUrl, function(data) {
 
     createFeatures(data.features);
-    //   console.log(data.features)
+
 });
 
 function createFeatures(earthquakeData) {
 
     var earthquakes = L.geoJSON(earthquakeData, {
 
-
-        // Define a function we want to run once for each feature in the features array
-        // Give each feature a popup describing the place and time of the earthquake
 
         onEachFeature: function(feature, layer) {
             layer.bindPopup("<h3>" + feature.properties.place +
@@ -50,15 +47,11 @@ function createFeatures(earthquakeData) {
         }
     });
 
-
-    // Sending our earthquakes layer to the createMap function
     createMap(earthquakes);
 }
 
 function createMap(earthquakes) {
 
-
-    // Define streetmap and darkmap layers
     var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
         tileSize: 512,
@@ -74,7 +67,6 @@ function createMap(earthquakes) {
         id: "dark-v10",
         accessToken: API_KEY
     });
-
 
     var grayscalemap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
@@ -101,7 +93,6 @@ function createMap(earthquakes) {
         accessToken: API_KEY
     });
 
-
     var baseMaps = {
         "Street Map": streetmap,
         "Dark Map": darkmap,
@@ -110,7 +101,6 @@ function createMap(earthquakes) {
         "Outdoors Map": outdoorsmap
     };
 
-    // Create our map, giving it the streetmap and earthquakes layers to display on load
     var myMap = L.map("map", {
         center: [
             37.09, -95.71
@@ -119,38 +109,28 @@ function createMap(earthquakes) {
         layers: [streetmap, earthquakes]
     });
 
-    // Query to retrieve the tectonic data
-    // Make tectonicPlates a new layer group
-
     var tectonicPlates = new L.LayerGroup();
 
     var tectonic = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json"
 
-    // Create the tectonic lines and add them to the layer
     d3.json(tectonic, function(platesData) {
         L.geoJSON(platesData, {
             style: function() {
-                return { color: "orange", fillOpacity: 0 }
+                return { color: "green", fillOpacity: 0 }
             }
         }).addTo(tectonicPlates);
         tectonicPlates.addTo(myMap);
     })
 
-    // Create overlay object to hold our overlay layer
     var overlayMaps = {
         Earthquakes: earthquakes,
         Tectonic: tectonicPlates
     };
 
-    // /  Create a layer control
-    //   Pass in baseMaps and overlayMaps
-    // Add the layer control to the map
-
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap);
 
-    // color function to be used when creating the legend
     function getColor(d) {
         return d > 5 ? '#ff3333' :
             d > 4 ? '#ff6633' :
@@ -160,7 +140,7 @@ function createMap(earthquakes) {
             '#ccff33';
     }
 
-    // Add legend to the map
+    // Add legend 
     var legend = L.control({ position: 'bottomright' });
 
     legend.onAdd = function(map) {
@@ -169,13 +149,11 @@ function createMap(earthquakes) {
             mags = [0, 1, 2, 3, 4, 5],
             labels = [];
 
-
         for (var i = 0; i < mags.length; i++) {
             div.innerHTML +=
                 '<i style="background:' + getColor(mags[i] + 1) + '">&nbsp&nbsp&nbsp&nbsp</i> ' +
                 mags[i] + (mags[i + 1] ? '&ndash;' + mags[i + 1] + '<br>' : '+');
         }
-
         return div;
     };
 
